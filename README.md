@@ -22,8 +22,7 @@ This project leverages data from PurpleAir sensors in Oakland and U.S. Census da
 The project utilizes two primary data sources:
 
 * [PurpleAir Sensor Data](https://api.purpleair.com/#api-sensors-get-sensor-history) – This includes data on sensor installations, their geographic locations (latitude and longitude), and installation dates.
-* U.S. Census Data 
-|in Oakland California.
+* U.S. Census Data in Oakland California.
     * [Cartographic Boundary Shapefiles](https://www.census.gov/geographies/mapping-files/2018/geo/carto-boundary-file.html)    
 
 We processed the following census tables:
@@ -35,13 +34,40 @@ We processed the following census tables:
 
 The U.S. Census Data used in this analysis is derived from the [American Community Survey (ACS)](https://www.census.gov/programs-surveys/acs/), an ongoing survey conducted by the U.S. Census Bureau. The ACS provides detailed and comprehensive demographic, social, economic, and housing information at the local level. 
 
-We merged Census data from multiple years and tables, aligning demographic information like income, educational attainment, and race with PurpleAir sensor data. Using [Python](https://www.python.org/), [Pandas](https://pandas.pydata.org/), [GeoPandas](https://geopandas.org/en/stable/getting_started/introduction.html), and [DuckDB](https://duckdb.org/), we combined this data with geographic shape files to map Census Tracts and associate PurpleAir sensors with their respective locations. This enabled creation of [choropleth](https://en.wikipedia.org/wiki/Choropleth_map) maps that visualize the distribution of sensors and demographic trends across Oakland, using GeoPandas and [Plotly](https://plotly.com/python/). 
+In Census Table data from [data.census.gov](https://data.census.gov), the package typically includes three components: 
+* **Table Notes**: Provide context, methodology, and source information.
+* **Data**: Typically in _CSV_ format, containing the census statistics across various geographic areas.
+* **Column-Metadata**: A separate file that explains the meaning and structure of each column in the data, including descriptions, data types, and units of measure. 
+
+These components ensure the data is well-documented and can be accurately interpreted and used for analysis.
+
+A time period starting in 2018 and ending in 2022, to define the analysis scope. We merged Census data from multiple years and tables, aligning demographic information like income, educational attainment, and race with PurpleAir sensor data. Using [Python](https://www.python.org/), [Pandas](https://pandas.pydata.org/), [GeoPandas](https://geopandas.org/en/stable/getting_started/introduction.html), and [DuckDB](https://duckdb.org/), we combined this data with geographic shape files to map Census Tracts and associate PurpleAir sensors with their respective locations. This enabled creation of [choropleth](https://en.wikipedia.org/wiki/Choropleth_map) maps that visualize the distribution of sensors and demographic trends across Oakland, using GeoPandas and [Plotly](https://plotly.com/python/). 
+
+# Analytical Techniques
+
+Several analytical methods were employed to explore the relationship between PurpleAir sensor installations and Census demographic data across Oakland, California. All code snippets, cleaning and processing, and SQL queries are located in the accompanying [JupyterLab Notebook](./notebooks/Oakland_PurpleAir_Sensor_Analysis_Notebook.ipynb)
+
+## Data Cleaning and Processing
+
+The Census dataset was processed to sanitize column names, to avoid inconsistent capitalization and deal with odd or inconsistent word spacing. Any unnamed columns were removed and special characters such "_!_" or "_$_" were removed or transliterated as appropriate. As columns could contain a combination of numeric data or specialized symbols, we coerced columns to be numeric values. This is to avoid issues in Pandas where dataframe columns would become "object" instead of "float" datatype. As a final step, **Geographic Area Name** columns were processed to deal with an inconsistent naming of Census tracts; we opted to remove all ";" within this field and to replace with "," for consistency.
+
+## Correlation Analysis
+
+[Pearson’s Correlation Coefficient](https://en.wikipedia.org/wiki/Pearson_correlation_coefficient) was used to examine the relationship between sensor installations and key demographic variables such as income, race, and educational attainment. This method helped quantify the strength of associations between the number of sensors in a census tract and the demographic makeup of that tract. The results showed varying degrees of correlation across different racial and socioeconomic groups.
+
+## Exploratory Data Analysis (EDA)
+
+Using Pandas, exploratory data analysis was conducted to summarize the data and examine basic patterns. This included descriptive statistics and visualization of trends over multiple years.
+
+## Geospatial Analysis
+
+The analysis incorporated GeoPandas to work with geographic boundaries and shape files of Oakland's Census tracts. Choropleth maps were created using Plotly, displaying demographic variables and sensor counts across the city.
 
 # Executive Summary
 
 Our analysis of PurpleAir sensor installations across Oakland, California, revealed several patterns and trends in relation to demographic data. 
 
-* **Income and Sensor Installs**: There is a mild positive correlation between median household income and sensor installations, especially in Northern Oakland. Over the period from 2018 to 2022, census tracts with higher median household incomes saw slightly more sensors installed. However, the relationship is not dominant, as many lower-income areas also received sensor coverage.
+* **Income and Sensor Installs**: In 2020, there was positive correlation between median household income and sensor installations (correlation coefficent range: 0.41 - 0.60). Over the period from 2018 to 2022, census tracts with higher median household incomes saw slightly more sensors installed. However, the relationship is not dominant, as many lower-income areas also received sensor coverage.
 
 * **Racial Distribution**:  While sensor installations don’t correlate strongly with racial demographics, tracts with predominantly "White Alone," "Asian Alone" and "Two or More Races" populations tend to have a higher concentration of sensors. Conversely, the data suggests an overall lack of racial equity in sensor distribution across Oakland.
 
@@ -72,12 +98,15 @@ Across all years, we observed mild positive correlation (between 0.4 to 0.6) bet
 
 * **Why this matters**: The relationship between income and sensor distribution highlights that wealthier areas have better air quality monitoring coverage. This raises questions about access to environmental data in lower-income communities.
 * **Noteworthy Observations**:
-Correlation values between income and sensor count are generally lower end of the spectrum, indicating that while income plays a role, it’s not the dominant factor in sensor placement. In spite of some of the stronger correlations observed, the plot above demonstrates installs are often done in single digits per tract. This makes it difficult to gauge the strength of association of income and sensor count.
+Correlation values between income and sensor count are generally on the lower end of the spectrum, indicating that while income plays a role, it’s not the dominant factor in sensor placement. In spite of some of the stronger correlations observed, the plot above demonstrates sensor installations are often done in single digits per tract. This makes it difficult to gauge the strength of association of income and sensor count.
 
 
 ## Racial Demographic Correlations
 
+There were only eight racial demographic Census columns that were positively correlated to sensor counts from 2018 to 2022. In 2019, the **Two or More Races** had a correlation coefficient of 0.32, while in 2020, the period of the largest installation of sensors saw the  **White Alone** population have a correlation coefficient of 0.65. The only other positive correlation observed in 2020 was that of "Total," which implies correlation with general  population volume.
+
 ![2020 Sensor Count and Racial Category Truncated Pairplot](./images/2020_Pairplot_Sensor_Total_Population.png)
+
 
 The year of 2020, and its spike in sensor installations, yields interesting aspects to explore regarding the pairplots relating to sensor counts:
 * **White Alone**: The large number of single sensor installs suggest tracts with this population are receiving basic sensor coverage. The general upward trend of sensor counts and higher **White Alone** populations suggest this particular group might be associated with higher sensor counts, but this seems far from clear. The **White Alone** category appears positively correlated with **Asian Alone** and **Two or More Races** categories.
@@ -86,7 +115,16 @@ The year of 2020, and its spike in sensor installations, yields interesting aspe
 * **Native Alone and Pacific Islander Alone**: Both of their respective plots indicate that these populations are small in number or have low representation in tracts where sensors are installed. The amount of tracts with sensor coverage appears uniform regardless of the size of these two populations.
 * **Two or More Races**: Shows moderate positive correlation, especially in the 250 to 500 population range. The **Two or More Races** category appears to positively correlate with **Total Population** and **White Alone** populations. There may be correlation with **Asian Alone** and **Black Alone** categories, but the spread of census tracts may not be simple to glean directly.
 
-After 2020, sensor install counts contracted to levels nearing 2019 volume, and in 2022, a significant reduction in sensor installs occured. Clustering of tracts near the vertices of the scatterplots within the pairplot indicate low volumes of sensor installation happening in tracts with lower population areas.
+After 2020, sensor install counts contracted to levels nearing 2019 volume, and in 2022, a significant reduction in sensor installs occurred. Clustering of tracts near the vertices of the scatterplots within the pairplot indicate low volumes of sensor installation happening in tracts with lower population areas.
+
+In 2021, there was a total of four racial demographic Census columns:
+|Census Column|Correlation Coefficient|
+|-------------|-----------------------|
+|Native Hawaiian and Pacific Islander| 0.76|
+|Two Or More Races, Two Races Excluding Some other, Three or More Races|	0.39|
+|Two Or More Races|	0.32|
+|Total White Alone|0.31|
+
 
 
 ### Racial Percentages in Census Tracts
@@ -136,48 +174,49 @@ The more affluent northern areas of Oakland had significantly more sensor instal
 
 Northern Oakland and central areas near and including Piedmont have more sensor coverage, while the southern tracts, particularly along the southern-most borders, have significant gaps.
 
+As an example, in the year of 2020, the northeastern Census Tract **4045.02** had a sensor density of _1 sensor for every 551.82 persons_ with a median income of $198K, while the western Census Tract **4018** had a sensor density of _1 sensor for every 1794.00 persons_, with a median income of $72K. 
+
 Generally, year over year, new sensor installs appeared in census tracts with significant **Asian Alone**, **White Alone**, and **Two or More Races** racial categories. **White Alone** populations appear primarily in Northern Census tracts, with **Asian Alone** located centrally and **Two or More Races** being more evenly distributed across Oakland.
+
+
 
 ## 2020 Sensor Installation Spike
 ![PurpleAir Sensors Installed in Oakland and Piedmont](./images/Barplot_of_PurpleAir_Sensor_Installs_in_Oakland.png)
 **Plot**: Number of Sensors Installed per Year
 
-Despite this increase in sensor installations in 2020, sensor installations were not sustained and returned to pre-2020 levels in subsequent years, which may indicate temporary external drivers behind the spike.
+Sensor installations increased by 600% in 2020, from 17 in 2019 to 102 in 2020. Despite this increase in sensor installations in 2020, sensor installations were not sustained and returned to pre-2020 levels in subsequent years, which may indicate temporary external drivers behind the spike.
 
 It is unclear if the spike in installations in this year was "organic" in nature, a consequence of dedicated PurpleAir sales and marketing efforts, or resulted from public health and community awareness campaigns centered around Air Quality. We have conjectured this may be resultant from persistent wildfire activity, as well as the COVID-19 pandemic raising generalized health awareness and air quality concerns, culminating in consumers entering a sales funnel for these sensors.  
 
-Consulting [Google Trends](https://trends.google.com/trends?geo=US&hl=en-US), we do observe distinct rise in search queries for "PurpleAir Sensor" in August 2020 through September 2020, reaching over 100 queries in a very short time period:
+Consulting [Google Trends](https://trends.google.com/trends?geo=US&hl=en-US), we do observe a distinct rise in search queries for "PurpleAir Sensor" in August 2020 through September 2020, reaching over 100 queries in a very short time period:
 
 ![Google Trends Image for PurpleAir Sensor](./images/PurpleAir_Sensor_Google_Trend_interest_over_time.png)
 
-Filtering for the Bay Area, we see this even more clearly:
+When filtering for the Bay Area, we see this even more clearly:
 
 ![Google Trends Image for PurpleAir Sensor California](./images/PurpleAir_Sensor_Google_Trend_interest_over_time_metro.png)
 
 # Recommendations
 
 ## Public Health
-* **Prioritize sensor installations in underserved areas**: The southern tracts of Oakland, which are predominantly lower-income and racially diverse, have significantly fewer sensors. To ensure equitable access to air quality data, it would be beneficial to prioritize installations in these areas.
-* **Leverage educational institutions**: Since we observed higher sensor counts in areas with higher educational attainment, public health officials could partner with local schools and universities to raise awareness and encourage sensor installations in lower-education areas.
-* **Respond to environmental crises with rapid deployment**: The sensor spike in 2020 suggests that external factors like wildfires and the pandemic motivated installations. Public health agencies could develop a rapid deployment strategy for future environmental crises to ensure swift and widespread sensor coverage.
+* **Prioritize sensor installations in underserved areas**: The southern tracts of Oakland, which may have lower median income and educational attainment levels, have significantly fewer sensors. To ensure equitable access to air quality data, it would be beneficial to prioritize installations in these areas. Sensors could be deployed in administrative and municipal offices, with their data and locations shared with local populations. 
+* **Leverage educational institutions**: Since we observed higher sensor counts in areas with higher educational attainment, public health officials could partner with local schools and universities to raise awareness and encourage sensor installations in areas with lower educational attainment levels. This may be initiated by educational facilities themselves installing sensors and disseminating educational and informational resources to the constituencies they serve.
+* **Respond to environmental crises with rapid deployment**: The sensor spike in 2020 suggests that external factors like wildfires and the pandemic may have motivated increased installation rates. Public health agencies could develop a rapid deployment strategy for future environmental crises to ensure swift and widespread sensor coverage, in the wake of environmental or public health emergencies.
 
 ## Marketing and Sales
 * **Target campaigns toward lower-income and racially diverse communities**: There is clear room to grow sensor installations in areas with lower income and racially diverse populations. PurpleAir could develop targeted marketing campaigns that emphasize the health benefits of air quality monitoring in these underserved areas.
 * **Capitalize on crisis-related demand**: The 2020 spike in sensor installations demonstrates that demand increases during environmental crises. PurpleAir could develop a crisis-response marketing strategy that ramps up during wildfire season or public health emergencies, offering promotions or incentives for purchasing sensors.
-* **Highlight the educational benefits of sensors**: Given the correlation between educational attainment and sensor installations, PurpleAir could position their product as a tool for learning and awareness in schools and educational programs, potentially partnering with local governments or school districts to promote sensor adoption.
+* **Highlight the educational benefits of sensors**: Given the correlation between educational attainment and sensor installations, PurpleAir could position their product as a tool for learning and awareness in schools and educational programs, potentially partnering with local governments or school districts to promote sensor adoption. Sensors could be leveraged in conjunction with science fairs or environmentally-based coursework, to have real-time impact as well as educational value. It is possible the topics of data analysis, air quality, and programming could be broadly covered with sensors acting as a catalyst.
 
 ## Environmental Justice and Advocacy
-* **Push for equitable distribution of sensors**: Advocacy groups should use the data to lobby for more sensor installations in lower-income and racially diverse tracts, particularly in the southern areas of Oakland that are currently underserved.
-* **Raise awareness about air quality disparities**: The data shows that wealthier, whiter areas are better covered by air quality sensors. Advocacy groups could use this information to educate the public and push for policy changes that ensure more equitable distribution of environmental monitoring tools.
+* **Push for equitable distribution of sensors**: Advocacy groups could use the data to lobby for more incentives promoting sensor installations in lower-income and racially diverse tracts, particularly in the southern areas of Oakland that are currently underserved. This would include installation assistance, provisions to expand high-speed internet access, and educational and training resources provided to extract the most value from sensors in newly expanded areas.
+* **Raise awareness about air quality disparities**: The data shows that wealthier, whiter areas are better covered by air quality sensors. Advocacy groups could use this information to educate the public and push for policy changes that ensure more equitable distribution of environmental monitoring tools. The dearth of sensor coverage could be combined with epidemiological research on respiratory illness and health in the non-covered areas, to promote sensor installation and adoption.
 * **Collaborate with local governments to fund installations**: Social justice and environmental groups could partner with local government entities to secure funding for sensor installations in disadvantaged communities, ensuring that all residents have access to air quality data.
 
 # Repository Structure
-* `data/`: Contains the original CSV files and associated database files used in the analysis.
-* `notebooks/`: Jupyter or Quarto notebooks documenting the analysis process.
-* `reports/`: Generated reports, including the Final Report and 
-Summary.
-* `notebooks/Sortitoutsi_Keyword_Research.qmd`: The main analysis document written in Quarto, detailing the entire keyword research process.
-* `reports/Project_Overview_and_Insights.md`: Front-end document with generalized project information.
+* `data/`: Contains the original Census data CSV files, DuckDB storage file, and Python `shelve` PurpleAir API data used in the analysis.
+* `notebooks/Oakland_PurpleAir_Sensor_Analysis_Notebook.ipynb`: The JupyterLab notebook containing all analysis and code related to this analysis.
+* `images/`: Images used in this README.md as well as generated by the accompanying JupyterLab notebook.
 * `README.md`: This document.
 
 
