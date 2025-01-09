@@ -7,7 +7,7 @@ Analysis of PurpleAir sensors in Oakland, California, focusing on demographic Ce
 ![2020 Census Tracts and Sensor Locations Total White Alone](./images/2020_Census_race_total_white_choropleth.png)
 
 
-This project leverages data from PurpleAir sensors in Oakland and U.S. Census data to explore patterns of sensor installations across census geographic tracts. The hope is to provide insights into how these environmental monitoring resources are distributed and identify potential disparities in air quality awareness across different communities in Oakland.
+This project leverages data from PurpleAir sensors in Oakland and U.S. Census data to explore patterns of sensor installations across census geographic tracts. The goal is to provide insights into how these environmental monitoring resources are distributed and identify potential disparities in air quality awareness across different communities in Oakland.
 
 # Background
 ## The City of Oakland, California
