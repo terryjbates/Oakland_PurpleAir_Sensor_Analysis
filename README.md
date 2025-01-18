@@ -1,6 +1,18 @@
 # Oakland PurpleAir Sensor Analysis
 
 Analysis of PurpleAir sensors in Oakland, California, focusing on demographic Census Data, using Python, Pandas, GeoPandas, and DuckDB.
+---
+
+# Table of Contents
+
+* [Overview](#overview) 
+* [Data Structure](#data-structure-overview)
+* [Analytical Techniques](#analytical-techniques)
+* [Executive Summary](#executive-summary)
+* [Recommendations](#recommendations)
+* [Repository Structure](#repository-structure)
+
+---
 
 # Overview
 
